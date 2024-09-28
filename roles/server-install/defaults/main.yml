@@ -1,0 +1,36 @@
+---
+# vars file for install_packages
+packages:
+  - vim
+  - net-tools
+  - mc
+  - tmux
+  - htop
+  - atop
+  - iftop
+  - wget
+  - traceroute
+  - ncdu
+  - ccze
+  - fd-find
+  - curl
+  - unzip
+  - git
+  - make
+  - tree
+  - iftop
+  - lsof
+  - bzip2
+  - gdisk
+  - nano
+  - qemu-guest-agent
+  - sudo
+  - ufw
+  - bash-completion
+  - ncdu
+  # - fail2ban
+  # - postfix
+  # - mailx
+
+bootstrap_extra_etc_hosts: ''
+timezone_name: '{{ timezone }}'

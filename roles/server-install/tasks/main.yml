@@ -1,0 +1,12 @@
+---
+- name: config hostname
+  ansible.builtin.include_tasks: config_hostname.yml
+  tags: [config_hostname]
+
+- name: check os - centos / rhel / fedora
+  ansible.builtin.include_tasks: rhel.yml
+  when: ansible_os_family == "RedHat"
+
+- name: check os - debian / ubuntu
+  ansible.builtin.include_tasks: debian.yml
+  when: ansible_os_family == "Debian"

@@ -1,0 +1,142 @@
+---
+  - name: sshd_config
+    become: true
+    hosts: "{{ host }}"
+    vars:
+      sshd_config: "/etc/ssh/sshd_config"
+
+    tasks:
+
+    - name: disable empty password login
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?PermitEmptyPasswords' 
+        line: 'PermitEmptyPasswords no'
+        state: present
+      notify: restart sshd
+    
+    - name: disable remote root login
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?PermitRootLogin' 
+        line: 'PermitRootLogin no'
+        state: present
+      notify: restart sshd
+
+    - name: disable permit user environment
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?PermitUserEnvironment' 
+        line: 'PermitUserEnvironment no'
+        state: present
+      notify: restart sshd
+    
+    - name: disable password login
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^(#\s*)?PasswordAuthentication '
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: restart sshd
+    
+    - name: disable PAM
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?UsePAM' 
+        line: 'UsePAM no'
+        state: present
+      notify: restart sshd
+
+    - name: disable X11 forwarding
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?X11Forwarding' 
+        line: 'X11Forwarding no'
+        state: present
+      notify: restart sshd
+
+    - name: set client alive interval 300
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?ClientAliveInterval' 
+        line: 'ClientAliveInterval 300'
+        state: present
+      notify: restart sshd
+
+    - name: disable client alive countMax
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?ClientAliveCountMax' 
+        line: 'ClientAliveCountMax 0'
+        state: present
+      notify: restart sshd
+
+    - name: disable client alive count max
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?LogLevel' 
+        line: 'LogLevel VERBOSE'
+        state: present
+      notify: restart sshd
+
+    - name: set max auth tries
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?MaxAuthTries' 
+        line: 'MaxAuthTries 4'
+        state: present
+      notify: restart sshd
+
+    - name: set ignore rhosts
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?IgnoreRhosts' 
+        line: 'IgnoreRhosts yes'
+        state: present
+      notify: restart sshd
+
+    - name: set protocol 2
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?Protocol' 
+        line: 'Protocol 2'
+        state: present
+
+    - name: set ssh banner file
+      lineinfile: 
+        dest: "{{ sshd_config }}" 
+        regexp: '^#?Banner' 
+        line: 'Banner /etc/issue.net'
+        state: present
+
+    - name: set banner content
+      copy:
+        dest: "/etc/issue.net"
+        content: |
+          **ALERT! Unauthorized access is strictly prohibited!**
+          You are entering a secure system. Your IP address, login time, and username have been logged and actively monitored.
+          All activities are recorded in real-time and reviewed by system administrators. Any unauthorized access or suspicious activity will be reported immediately to cybersecurity experts and law enforcement agencies for further investigation.
+          **By continuing, you agree to full legal accountability for any unlawful activities conducted on this system.**
+          Severe penalties, including criminal prosecution, may apply.
+
+    - name: set bashrc history
+      ansible.builtin.lineinfile:
+        path: "/etc/profile"
+        line: |
+          HISTSIZE=10000
+          HISTTIMEFORMAT="%h %d %H:%M:%S "
+          PROMPT_COMMAND='history -a'
+          HISTIGNORE="ls:ll:history:w"
+
+    handlers:
+      - name: restart sshd
+        systemd:
+          name: sshd
+          state: restarted
+        when: ansible_distribution_version != "24.04"
+
+      - name: restart ssh on Ubuntu 24.04
+        systemd:
+          name: ssh
+          state: restarted
+        when: ansible_distribution_version == "24.04"

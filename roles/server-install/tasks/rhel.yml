@@ -1,0 +1,26 @@
+---
+- name: upgrade all packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+
+- name: install the latest version of yum-utils
+  ansible.builtin.dnf:
+    name:
+      - yum-utils
+    state: latest
+
+- name: run command dnf config-manager --set-enabled crb
+  ansible.builtin.command: dnf config-manager --set-enabled crb
+
+- name: install the latest version of epel
+  ansible.builtin.dnf:
+    name:
+      - epel-release
+    state: latest
+
+- name: install dnf packages
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ packages }}"

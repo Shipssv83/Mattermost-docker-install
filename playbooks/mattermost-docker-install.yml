@@ -1,0 +1,26 @@
+---
+- name: include server install play
+  ansible.builtin.import_playbook: server-install.yml
+
+- name: include docker install play
+  ansible.builtin.import_playbook: docker-install.yml
+
+- name: mattermost docker install
+  become: true
+  hosts: '{{ host }}'
+  vars:
+  mattermost_volumes:
+    - "config"
+    - "data"
+    - "logs"
+    - "plugins"
+    - "client"
+    - "bleve-indexes"
+  mattermost_url: '{{ host }}'
+  timezone: "Europe/Warsaw"
+  mattermost_db_user: "mattermost"
+  mattermost_db_pass: "0gtfKcpjz5tBNm"
+  mattermost_db_database: "mattermost_db"
+
+  roles:
+  - roles/mattermost-docker-install

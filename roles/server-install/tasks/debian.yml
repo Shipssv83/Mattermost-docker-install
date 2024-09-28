@@ -1,0 +1,18 @@
+---
+# tasks file for install_packages
+- name: update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: upgrade all packages
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: yes
+
+# install apt packages
+- name: install apt packages
+  ansible.builtin.apt:
+    pkg: "{{ item }}"
+    state: present
+    install_recommends: yes
+  loop: "{{ packages }}"
