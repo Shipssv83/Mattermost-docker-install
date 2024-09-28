@@ -15,59 +15,72 @@ Hi, ![](https://user-images.githubusercontent.com/18350557/176309783-0785949b-91
 
 <p align="left"> <a href="https://github.com/Shipssv83" target="_blank" rel="noreferrer"> <picture> <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/github-dark.svg" /> <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/github.svg" /> <img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/github.svg" width="32" height="32" /> </picture> </a> <a href="https://www.linkedin.com/in/sergey-shipilov-7262a31b4/" target="_blank" rel="noreferrer"> <picture> <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/linkedin-dark.svg" /> <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/linkedin.svg" /> <img src="https://raw.githubusercontent.com/danielcranney/readme-generator/main/public/icons/socials/linkedin.svg" width="32" height="32" /> </picture> </a></p>
 
-# Server Installation Playbook
+# Ansible Playbook for Server, Docker, and Mattermost Installation
 
-This Ansible playbook is designed to set up and configure servers in a production environment. It includes setting up the timezone, installing essential services, configuring NTP with Chrony, securing the server with SSH and UFW, and more.
+This repository contains Ansible playbooks for setting up a server, installing Docker, and deploying Mattermost in a Docker container with necessary volume configuration.
 
 ## Playbook Overview
 
-The playbook performs the following tasks:
+The project includes the following key steps:
+1. **Server Setup**: Installs necessary packages and configures the server environment.
+2. **Docker Installation**: Installs Docker and Docker Compose for managing containers.
+3. **Mattermost Deployment**: Deploys Mattermost inside a Docker container with all required configurations.
 
-- **Server Setup**: Basic configuration including setting up the timezone and essential services.
-- **Chrony NTP Setup**: Configures the Chrony service for network time synchronization.
-- **SSH Configuration**: Sets up the SSH daemon according to security best practices.
-- **UFW Firewall Configuration**: Configures the UFW firewall to secure the server.
+## Playbook Structure
+
+### 1. Server Setup (`server-install.yml`)
+This playbook installs essential software and configures basic settings such as timezone.
+
+### 2. Docker Installation (`docker-install.yml`)
+The `docker-install.yml` playbook installs Docker and Docker Compose on the target host, preparing the system for containerized applications.
+
+### 3. Mattermost Docker Installation (`mattermost-docker-install.yml`)
+This playbook deploys Mattermost in a Docker container and sets up necessary volumes for storing data, configuration, logs, and plugins.
 
 ## Requirements
 
 - Ansible 2.9+ installed on the control node.
-- SSH access to the target hosts.
-- The target hosts should be running a Unix-based operating system (e.g., Ubuntu, RHEL).
+- SSH access to the target server.
+- A Linux-based server (Ubuntu, CentOS, etc.) with internet access.
+- Docker and Docker Compose will be installed automatically.
 
-## Roles and Playbooks
+## Roles
 
-### Roles
-- `server-install`: Performs the basic server setup.
-- `frzk.chrony`: Configures Chrony for NTP synchronization.
-
-### Included Playbooks
-- `sshd.yml`: Configures the SSH daemon (included in the main playbook).
-- `ufw.yml`: Configures the UFW firewall (included in the main playbook).
+The playbook makes use of the following roles:
+- **roles/server-install**: Configures the server environment.
+- **roles/docker-install**: Installs Docker and Docker Compose.
+- **roles/mattermost-docker-install**: Deploys Mattermost using Docker and sets up necessary volumes and configurations.
 
 ## Variables
 
-You can define the following variables to customize the playbook:
+You can customize the playbook by modifying the following variables:
 
-### Global Variables
-- `hosts`: Target hosts where the playbook will be applied.
-- `env`: Environment (default: `prod`).
-- `env_color`: Color code for environment output (default: `033[0;33m`).
-- `timezone`: The timezone to be set on the server (default: `Europe/Warsaw`).
+- `mattermost_volumes`: List of directories where Mattermost stores its data.
+- `mattermost_url`: The URL or hostname where Mattermost will be accessible.
+- `timezone`: The server's timezone (default: `Europe/Warsaw`).
+- `mattermost_db_user`: The database user for Mattermost.
+- `mattermost_db_pass`: The password for the Mattermost database user.
+- `mattermost_db_database`: The name of the Mattermost database.
 
-### Chrony Variables
-These variables are used to configure Chrony for NTP synchronization:
+### Example Variable Configuration:
 
-- `chrony_service_name`: Name of the Chrony service (default: `chronyd`).
-- `chrony_ntp_pools`: List of NTP pools to use (empty by default).
-- `chrony_ntp_servers`: List of NTP servers to use (default: RHEL NTP pool).
-- `chrony_config_file`: Path to the Chrony configuration file (default: `/etc/chrony.conf`).
-- `chrony_config_driftfile`: Drift file for Chrony (default: `/var/lib/chrony/drift`).
-- `chrony_config_logdir`: Directory for Chrony logs (default: `/var/log/chrony`).
-- `chrony_makestep_threshold`: Threshold for time correction (default: `5`).
-- `chrony_makestep_limit`: Maximum time correction limit (default: `3`).
+```yaml
+vars:
+  mattermost_volumes:
+    - "config"
+    - "data"
+    - "logs"
+    - "plugins"
+    - "client"
+    - "bleve-indexes"
+  mattermost_url: '{{ host }}'
+  timezone: "Europe/Warsaw"
+  mattermost_db_user: "mattermost"
+  mattermost_db_pass: "0gtfKcpjz5tBNm"
+  mattermost_db_database: "mattermost_db"
+```
 
 # ansible galaxy roles
-
 ```
 ### install role ansible galaxy
 ansible-galaxy install -r roles/requirements.yml
@@ -80,7 +93,7 @@ ansible-galaxy install -g -f -r roles/requirements.yml
 Run the playbook by specifying your inventory file and variable file:
 
 ```
-ansible-playbook -i inventory --user root --extra-vars "host=host_name" playbooks/server-install.yml
+ansible-playbook -i inventory --user root --extra-vars "host=host_name" playbooks/mattermost-docker-install.yml
 ```
 
 License
