@@ -8,7 +8,7 @@
 
 - name: create a directory volumes mattermost
   ansible.builtin.file:
-    path: "{{ path }}/volumes/app/mattermost{{ item }}"
+    path: "{{ path }}/volumes/project/mattermost{{ item }}"
     state: directory
     recurse: yes
     owner: "2000"
@@ -19,7 +19,7 @@
 
 - name: create a directory volumes mattermost client plugins
   ansible.builtin.file:
-    path: "{{ path }}/volumes/app/mattermost/client/plugins/"
+    path: "{{ path }}/volumes/project/mattermost/client/plugins/"
     state: directory
     recurse: yes
     owner: "2000"
@@ -32,6 +32,6 @@
     src: env.j2
     dest: "{{ path }}/.env"
 
-- name: docker-compose up -d mattermost
-  ansible.builtin.shell: "docker-compose -f {{ path }}/docker-compose.yml -f {{ path }}/docker-compose.without-nginx.yml up -d"
+- name: project-compose up -d mattermost
+  ansible.builtin.shell: "project-compose -f {{ path }}/project-compose.yml -f {{ path }}/project-compose.without-nginx.yml up -d"
   ignore_errors: true

@@ -1,5 +1,5 @@
 ---
-  - name: install firewall ufw
+  - name: install firewall.tf ufw
     become: true
     hosts: "{{ host }}"
     vars:

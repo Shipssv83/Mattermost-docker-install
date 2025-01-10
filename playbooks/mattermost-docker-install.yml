@@ -2,10 +2,10 @@
 - name: include server install play
   ansible.builtin.import_playbook: server-install.yml
 
-- name: include docker install play
-  ansible.builtin.import_playbook: docker-install.yml
+- name: include project install play
+  ansible.builtin.import_playbook: project-install.yml
 
-- name: mattermost docker install
+- name: mattermost project install
   become: true
   hosts: '{{ host }}'
   vars:
@@ -23,4 +23,4 @@
   mattermost_db_database: "mattermost_db"
 
   roles:
-  - roles/mattermost-docker-install
+  - roles/mattermost-project-install
